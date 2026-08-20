@@ -20,6 +20,22 @@ def git(repo: Path, *args: str) -> subprocess.CompletedProcess[str]:
     )
 
 
+def push_with_rebase(repo: Path) -> bool:
+    pushed = git(repo, "push")
+    if pushed.returncode == 0:
+        return True
+    print("bridge: push rejected; rebasing onto origin/main and retrying")
+    pulled = git(repo, "pull", "--rebase", "--autostash", "origin", "main")
+    if pulled.returncode != 0:
+        print(pulled.stderr.strip())
+        return False
+    retried = git(repo, "push")
+    if retried.returncode != 0:
+        print(retried.stderr.strip())
+        return False
+    return True
+
+
 def has_external_changes(repo: Path) -> bool:
     status = git(repo, "status", "--porcelain", "--untracked-files=all").stdout
     for line in status.splitlines():
@@ -74,6 +90,8 @@ def update_task_history(repo_tasks: Path, offline_tasks: Path) -> None:
                 task_id = result.get("task_id", metadata.get("task_id", task.name))
                 records_by_id[task_id] = {
                     "task_id": task_id,
+                    "name": result.get("name", metadata.get("name", task_id)),
+                    "description": result.get("description", metadata.get("description", "")),
                     "status": result.get("status", status),
                     "platform": result.get("platform", metadata.get("zone", "offline")),
                     "started_at": result.get("started_at", metadata.get("created_at")),
@@ -115,8 +133,13 @@ def sync_once(repo: Path, offline_root: Path, online_timeout: int) -> None:
         line[3:].split(" -> ")[-1].startswith("automation/tasks/")
         for line in git(repo, "status", "--porcelain").stdout.splitlines()
     )
-    if not queue_has_changes and git(repo, "pull", "--ff-only").returncode != 0:
-        return
+    if not queue_has_changes:
+        pulled = git(repo, "pull", "--ff-only")
+        if pulled.returncode != 0:
+            rebased = git(repo, "pull", "--rebase", "--autostash", "origin", "main")
+            if rebased.returncode != 0:
+                print(rebased.stderr.strip())
+                return
     repo_tasks = repo / "automation" / "tasks"
     offline_tasks = offline_root / "tasks"
     for queue in ("pending", "running", "done", "failed"):
@@ -140,7 +163,7 @@ def sync_once(repo: Path, offline_root: Path, online_timeout: int) -> None:
     if git(repo, "diff", "--cached", "--quiet").returncode != 0:
         if git(repo, "commit", "-m", "chore: collect remote GPU task results").returncode != 0:
             return
-        git(repo, "push")
+        push_with_rebase(repo)
 
 
 def update_status(root: Path, run_id: str, state: str, interval: int, message: str = "") -> None:

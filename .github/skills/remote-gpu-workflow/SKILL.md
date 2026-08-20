@@ -42,9 +42,12 @@ argument selects the execution zone and defaults to `offline`:
 ```bash
 bash automation/queue_task.sh path/to/run.sh offline
 bash automation/queue_task.sh path/to/run.sh online
+bash automation/queue_task.sh path/to/run.sh offline inference "Run inference on the GPU"
 ```
 
 `online` tasks run inside the online bridge. `offline` tasks run inside the GPU Worker.
+The optional third and fourth arguments are a readable task name and description. The name is part
+of the task directory ID; the description is retained in task metadata and history.
 
 The script must be self-contained or refer only to paths available in the offline checkout. Task execution is intentionally limited to `bash task.sh`, `python task.py`, or `python3 task.py`.
 

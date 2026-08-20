@@ -7,6 +7,7 @@ import json
 import os
 import shutil
 import tempfile
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -16,6 +17,8 @@ def main() -> None:
     parser.add_argument("--script", required=True, type=Path)
     parser.add_argument("--commit", default="unknown")
     parser.add_argument("--zone", choices=("online", "offline"), default="offline")
+    parser.add_argument("--name", default="")
+    parser.add_argument("--description", default="")
     parser.add_argument("--output-dir", type=Path, default=Path("automation/tasks/pending"))
     args = parser.parse_args()
 
@@ -26,7 +29,10 @@ def main() -> None:
         parser.error("script must have a .sh or .py suffix")
 
     digest = hashlib.sha256(script.read_bytes()).hexdigest()[:12]
-    task_id = f"{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}-{digest}"
+    raw_name = args.name or script.stem
+    name = re.sub(r"[^A-Za-z0-9_.-]+", "-", raw_name).strip("-_.") or "task"
+    name = name[:40]
+    task_id = f"{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}-{name}-{digest}"
     task_dir = args.output_dir.resolve()
     task_dir.mkdir(parents=True, exist_ok=True)
     destination_name = "task.sh" if script.suffix == ".sh" else "task.py"
@@ -42,6 +48,8 @@ def main() -> None:
             "commit": args.commit,
             "script": destination_name,
             "zone": args.zone,
+            "name": name,
+            "description": args.description,
             "created_at": datetime.now(timezone.utc).isoformat(),
         }
         (temporary_dir / "task.json").write_text(

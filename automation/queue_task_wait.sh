@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ $# -lt 1 || $# -gt 2 ]]; then
-  printf 'Usage: %s path/to/task.sh-or-task.py [online|offline]\n' "$0" >&2
+if [[ $# -lt 1 || $# -gt 4 ]]; then
+  printf 'Usage: %s path/to/task.sh-or-task.py [online|offline] [name] [description]\n' "$0" >&2
   exit 2
 fi
 
@@ -11,7 +11,13 @@ INTERVAL="${REMOTE_GPU_WAIT_INTERVAL:-1}"
 cd "$REPO_ROOT"
 
 ZONE="${2:-offline}"
-TASK_ID="$(python automation/submit_task.py --script "$1" --commit "$(git rev-parse HEAD)" --zone "$ZONE")"
+NAME="${3:-}"
+DESCRIPTION="${4:-}"
+git pull --rebase --autostash origin main
+TASK_ARGS=(--script "$1" --commit "$(git rev-parse HEAD)" --zone "$ZONE")
+[[ -n "$NAME" ]] && TASK_ARGS+=(--name "$NAME")
+[[ -n "$DESCRIPTION" ]] && TASK_ARGS+=(--description "$DESCRIPTION")
+TASK_ID="$(python automation/submit_task.py "${TASK_ARGS[@]}")"
 git add "automation/tasks/pending/$TASK_ID"
 git commit -m "chore: queue remote GPU task $TASK_ID"
 git push

@@ -86,7 +86,12 @@ second argument selects the execution zone and defaults to `offline`:
 ```bash
 bash automation/queue_task.sh path/to/task.sh offline
 bash automation/queue_task.sh path/to/task.sh online
+bash automation/queue_task.sh path/to/task.sh offline inference "Run Hunyuan inference on the GPU"
 ```
+
+The optional third and fourth arguments are a short task name and a human-readable description.
+Task directories use the name, for example `20260820T121136Z-inference-<hash>`. The metadata is
+stored in `task.json`, `result.json`, and `task_history.jsonl`.
 
 To submit and wait automatically for the remote result, use:
 
@@ -106,6 +111,10 @@ bash automation/queue_task_wait.sh automation/examples/install_environment_offli
 
 This command pushes the task, pulls Git every second, and exits with success or failure when the
 Worker result is available. It pauses automatic pulls if you have local edits.
+
+Before creating a task, the submit helpers rebase onto `origin/main`; the bridge also rebases and
+retries when a result push is rejected. This keeps Mac task commits and online-zone result commits
+on one line without force-pushing.
 
 The online bridge maintains `automation/tasks/task_history.jsonl`. Each line records the task ID,
 start time, finish time, execution platform (`online` or `offline`), current status, and source
