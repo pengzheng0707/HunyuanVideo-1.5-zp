@@ -86,6 +86,15 @@ Queue a task from the Mac after placing a `.sh` or `.py` task script in the repo
 bash automation/queue_task.sh path/to/task.sh
 ```
 
+To submit and wait automatically for the remote result, use:
+
+```bash
+bash automation/queue_task_wait.sh path/to/task.sh
+```
+
+This command pushes the task, pulls Git every second, and exits with success or failure when the
+Worker result is available. It pauses automatic pulls if you have local edits.
+
 Override paths without editing scripts:
 
 ```bash
