@@ -1,0 +1,10 @@
+{
+  "task_id": "20260820T114202Z-7539ee46293d",
+  "started_at": "2026-08-20T11:56:10.610327+00:00",
+  "commit": "5770c56590e63939a6534ccb781c6a7057cf756e",
+  "zone": "offline",
+  "platform": "offline",
+  "status": "failed",
+  "exit_code": 141,
+  "finished_at": "2026-08-20T11:56:10.925478+00:00"
+}

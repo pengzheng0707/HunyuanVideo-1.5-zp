@@ -1,0 +1,9 @@
+{
+  "task_id": "20260820T123412Z-runtime-preflight-44692dd03ae5",
+  "commit": "7deb5403f3dc3f8e4fd8544fbeda2d2f246d7a3b",
+  "script": "task.sh",
+  "zone": "offline",
+  "name": "runtime-preflight",
+  "description": "Check CUDA imports checkpoints and disk before generation",
+  "created_at": "2026-08-20T12:34:12.656167+00:00"
+}
