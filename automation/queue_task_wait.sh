@@ -13,7 +13,8 @@ cd "$REPO_ROOT"
 ZONE="${2:-offline}"
 NAME="${3:-}"
 DESCRIPTION="${4:-}"
-git pull --rebase --autostash origin main
+git fetch origin main
+git rebase --autostash origin/main
 TASK_ARGS=(--script "$1" --commit "$(git rev-parse HEAD)" --zone "$ZONE")
 [[ -n "$NAME" ]] && TASK_ARGS+=(--name "$NAME")
 [[ -n "$DESCRIPTION" ]] && TASK_ARGS+=(--description "$DESCRIPTION")

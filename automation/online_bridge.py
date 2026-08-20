@@ -25,7 +25,11 @@ def push_with_rebase(repo: Path) -> bool:
     if pushed.returncode == 0:
         return True
     print("bridge: push rejected; rebasing onto origin/main and retrying")
-    pulled = git(repo, "pull", "--rebase", "--autostash", "origin", "main")
+    fetched = git(repo, "fetch", "origin", "main")
+    if fetched.returncode != 0:
+        print(fetched.stderr.strip())
+        return False
+    pulled = git(repo, "rebase", "--autostash", "origin/main")
     if pulled.returncode != 0:
         print(pulled.stderr.strip())
         return False
@@ -136,7 +140,8 @@ def sync_once(repo: Path, offline_root: Path, online_timeout: int, idle_timeout:
     if not queue_has_changes:
         pulled = git(repo, "pull", "--ff-only")
         if pulled.returncode != 0:
-            rebased = git(repo, "pull", "--rebase", "--autostash", "origin", "main")
+            fetched = git(repo, "fetch", "origin", "main")
+            rebased = git(repo, "rebase", "--autostash", "origin/main") if fetched.returncode == 0 else fetched
             if rebased.returncode != 0:
                 print(rebased.stderr.strip())
                 return
