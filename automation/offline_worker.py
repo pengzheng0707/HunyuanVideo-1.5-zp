@@ -5,6 +5,7 @@ import argparse
 import json
 import os
 import re
+import shutil
 import subprocess
 import time
 from datetime import datetime, timezone
@@ -66,6 +67,7 @@ def recover_running_tasks(root: Path) -> None:
         else:
             destination = pending / task.name
         if destination.exists():
+            shutil.rmtree(task)
             continue
         os.replace(task, destination)
 
