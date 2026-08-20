@@ -82,6 +82,7 @@ def main() -> None:
     parser.add_argument("--root", type=Path, required=True)
     parser.add_argument("--interval", type=int, default=1)
     parser.add_argument("--timeout", type=int, default=3600)
+    parser.add_argument("--idle-timeout", type=int, default=180)
     parser.add_argument("--once", action="store_true")
     args = parser.parse_args()
     queues = [args.root / "tasks" / name for name in ("pending", "running", "done", "failed")]
@@ -105,7 +106,7 @@ def main() -> None:
                 if metadata.get("zone", "offline") != "offline":
                     archive_task(running, args.root.resolve(), "failed")
                     continue
-                execute_task(running, args.timeout)
+                execute_task(running, args.timeout, args.idle_timeout)
                 result = json.loads((running / "result.json").read_text(encoding="utf-8"))
                 archive_task(running, args.root.resolve(), result["status"])
             update_status(args.root, run_id, "running", args.interval)

@@ -31,6 +31,10 @@ The production bridge and worker should use absolute paths and be supervised by 
 The default polling interval is 1 second. Override it with `REMOTE_GPU_BRIDGE_INTERVAL` or
 `REMOTE_GPU_WORKER_INTERVAL` when needed.
 
+Each task has a total timeout of 3600 seconds and an output-idle timeout of 180 seconds. If neither
+stdout nor stderr changes for 180 seconds, the executor kills the task process group and records a
+failed result. Override this with `REMOTE_GPU_IDLE_TIMEOUT` when a task is expected to be silent.
+
 ## Reusable scripts
 
 The default paths match the shared environment:
@@ -115,6 +119,11 @@ Worker result is available. It pauses automatic pulls if you have local edits.
 Before creating a task, the submit helpers rebase onto `origin/main`; the bridge also rebases and
 retries when a result push is rejected. This keeps Mac task commits and online-zone result commits
 on one line without force-pushing.
+
+Task commits cannot be automatically deleted from a shared `main` branch: removing already pushed
+commits requires history rewriting and force-pushing, which can delete another zone's tasks or
+results. Keep the JSONL task history as the durable task index, and perform any Git history squash
+only as a deliberate maintenance operation after stopping Mac sync and both zone services.
 
 The online bridge maintains `automation/tasks/task_history.jsonl`. Each line records the task ID,
 start time, finish time, execution platform (`online` or `offline`), current status, and source

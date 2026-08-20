@@ -107,7 +107,7 @@ def update_task_history(repo_tasks: Path, offline_tasks: Path) -> None:
     os.replace(temporary, history)
 
 
-def execute_online_tasks(repo_tasks: Path, timeout: int) -> None:
+def execute_online_tasks(repo_tasks: Path, timeout: int, idle_timeout: int) -> None:
     for source in sorted((repo_tasks / "pending").iterdir()):
         if not source.is_dir() or source.name.startswith("."):
             continue
@@ -122,11 +122,11 @@ def execute_online_tasks(repo_tasks: Path, timeout: int) -> None:
             os.replace(source, running)
         except FileNotFoundError:
             continue
-        result = execute_task(running, timeout)
+        result = execute_task(running, timeout, idle_timeout)
         archive_online_task(running, repo_tasks, result["status"])
 
 
-def sync_once(repo: Path, offline_root: Path, online_timeout: int) -> None:
+def sync_once(repo: Path, offline_root: Path, online_timeout: int, idle_timeout: int) -> None:
     if has_external_changes(repo):
         return
     queue_has_changes = any(
@@ -145,7 +145,7 @@ def sync_once(repo: Path, offline_root: Path, online_timeout: int) -> None:
     for queue in ("pending", "running", "done", "failed"):
         (repo_tasks / queue).mkdir(parents=True, exist_ok=True)
         (offline_tasks / queue).mkdir(parents=True, exist_ok=True)
-    execute_online_tasks(repo_tasks, online_timeout)
+    execute_online_tasks(repo_tasks, online_timeout, idle_timeout)
     for task in (repo_tasks / "pending").iterdir():
         if task.is_dir() and json.loads((task / "task.json").read_text(encoding="utf-8")).get("zone", "offline") == "offline":
             copy_atomically(task, offline_tasks / "pending" / task.name)
@@ -178,6 +178,7 @@ def main() -> None:
     parser.add_argument("--offline-root", type=Path, required=True)
     parser.add_argument("--interval", type=int, default=1)
     parser.add_argument("--online-timeout", type=int, default=3600)
+    parser.add_argument("--idle-timeout", type=int, default=180)
     parser.add_argument("--once", action="store_true")
     args = parser.parse_args()
     offline_root = args.offline_root.resolve()
@@ -185,7 +186,7 @@ def main() -> None:
     update_status(offline_root, run_id, "running", args.interval)
     try:
         while True:
-            sync_once(args.repo.resolve(), offline_root, args.online_timeout)
+            sync_once(args.repo.resolve(), offline_root, args.online_timeout, args.idle_timeout)
             update_status(offline_root, run_id, "running", args.interval)
             if args.once:
                 break

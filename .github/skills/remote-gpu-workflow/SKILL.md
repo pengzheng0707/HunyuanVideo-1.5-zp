@@ -108,6 +108,9 @@ to done or failed.
 
 The worker claims tasks by atomic rename, runs them in an isolated task directory, records stdout/stderr and metadata, and moves the task to `done` or `failed`.
 
+Tasks are killed when neither stdout nor stderr changes for 180 seconds. Set
+`REMOTE_GPU_IDLE_TIMEOUT` to change this threshold. The total task timeout remains 3600 seconds.
+
 ## Operational rules
 
 - Do not edit a task after it is committed. Create a new task for a retry.
@@ -115,3 +118,4 @@ The worker claims tasks by atomic rename, runs them in an isolated task director
 - Treat `failed` tasks as durable evidence; inspect logs before retrying.
 - Use `--once` for smoke tests and service managers such as `launchd` or `systemd` for continuous operation.
 - Do not place credentials, tokens, or unrestricted shell commands in task files.
+- Do not automatically rewrite or force-push shared `main` to remove task commits. Squash Git history only during explicit maintenance after all three sync processes are stopped; `task_history.jsonl` is the durable task index.
