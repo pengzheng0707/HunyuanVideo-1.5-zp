@@ -7,6 +7,7 @@ import shutil
 import subprocess
 import tempfile
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -69,18 +70,36 @@ def sync_once(repo: Path, offline_root: Path) -> None:
         git(repo, "push")
 
 
+def update_status(root: Path, run_id: str, state: str, interval: int, message: str = "") -> None:
+    from status import write_status
+
+    write_status(root, "online_bridge", run_id, state, interval, message)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo", type=Path, required=True)
     parser.add_argument("--offline-root", type=Path, required=True)
-    parser.add_argument("--interval", type=int, default=15)
+    parser.add_argument("--interval", type=int, default=1)
     parser.add_argument("--once", action="store_true")
     args = parser.parse_args()
-    while True:
-        sync_once(args.repo.resolve(), args.offline_root.resolve())
-        if args.once:
-            return
-        time.sleep(args.interval)
+    offline_root = args.offline_root.resolve()
+    run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    update_status(offline_root, run_id, "running", args.interval)
+    try:
+        while True:
+            sync_once(args.repo.resolve(), offline_root)
+            update_status(offline_root, run_id, "running", args.interval)
+            if args.once:
+                break
+            time.sleep(args.interval)
+    except KeyboardInterrupt:
+        update_status(offline_root, run_id, "stopped", args.interval, "interrupted")
+    except Exception as error:
+        update_status(offline_root, run_id, "failed", args.interval, str(error))
+        raise
+    else:
+        update_status(offline_root, run_id, "stopped", args.interval, "completed")
 
 
 if __name__ == "__main__":

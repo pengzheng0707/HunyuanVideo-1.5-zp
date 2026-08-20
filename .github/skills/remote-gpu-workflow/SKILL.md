@@ -48,7 +48,7 @@ On the networked machine, clone the repository and configure the offline shared 
 python automation/online_bridge.py \
   --repo /path/to/repository \
   --offline-root /path/to/shared/offline-root \
-  --interval 15
+  --interval 1
 ```
 
 With the shared environment from this repository, run `bash automation/run_online_bridge.sh`. It uses:
@@ -64,11 +64,15 @@ On the GPU machine:
 ```bash
 python automation/offline_worker.py \
   --root /path/to/shared/offline-root \
-  --interval 5
+  --interval 1
 ```
 
 In the standard environment, initialize once with `bash automation/setup_remote_gpu_queue.sh` and run
-`bash automation/run_offline_worker.sh` in the GPU zone.
+`bash automation/start_offline_worker.sh` in the GPU zone. Use `bash automation/start_online_bridge.sh`
+in the online zone. Both commands use `nohup`, so closing the terminal does not stop the process.
+
+Check status with `bash automation/show_status.sh`. Each service writes a timestamped run file and
+`latest.json` under the shared queue's `status/` directory. A stale heartbeat is reported as not running.
 
 The worker claims tasks by atomic rename, runs them in an isolated task directory, records stdout/stderr and metadata, and moves the task to `done` or `failed`.
 

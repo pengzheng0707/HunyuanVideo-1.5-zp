@@ -47,31 +47,48 @@ def execute(task_dir: Path, timeout: int) -> None:
     (task_dir / "result.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
 
 
+def update_status(root: Path, run_id: str, state: str, interval: int, message: str = "") -> None:
+    from status import write_status
+
+    write_status(root, "offline_worker", run_id, state, interval, message)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, required=True)
-    parser.add_argument("--interval", type=int, default=5)
+    parser.add_argument("--interval", type=int, default=1)
     parser.add_argument("--timeout", type=int, default=3600)
     parser.add_argument("--once", action="store_true")
     args = parser.parse_args()
     queues = [args.root / "tasks" / name for name in ("pending", "running", "done", "failed")]
     for queue in queues:
         queue.mkdir(parents=True, exist_ok=True)
-    while True:
-        for source in sorted((args.root / "tasks" / "pending").iterdir()):
-            if not source.is_dir() or source.name.startswith("."):
-                continue
-            running = args.root / "tasks" / "running" / source.name
-            try:
-                os.replace(source, running)
-            except FileNotFoundError:
-                continue
-            execute(running, args.timeout)
-            result = json.loads((running / "result.json").read_text(encoding="utf-8"))
-            os.replace(running, args.root / "tasks" / result["status"] / running.name)
-        if args.once:
-            return
-        time.sleep(args.interval)
+    run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    update_status(args.root, run_id, "running", args.interval)
+    try:
+        while True:
+            for source in sorted((args.root / "tasks" / "pending").iterdir()):
+                if not source.is_dir() or source.name.startswith("."):
+                    continue
+                running = args.root / "tasks" / "running" / source.name
+                try:
+                    os.replace(source, running)
+                except FileNotFoundError:
+                    continue
+                execute(running, args.timeout)
+                result = json.loads((running / "result.json").read_text(encoding="utf-8"))
+                os.replace(running, args.root / "tasks" / result["status"] / running.name)
+            update_status(args.root, run_id, "running", args.interval)
+            if args.once:
+                break
+            time.sleep(args.interval)
+    except KeyboardInterrupt:
+        update_status(args.root, run_id, "stopped", args.interval, "interrupted")
+    except Exception as error:
+        update_status(args.root, run_id, "failed", args.interval, str(error))
+        raise
+    else:
+        update_status(args.root, run_id, "stopped", args.interval, "completed")
 
 
 if __name__ == "__main__":

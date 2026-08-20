@@ -21,6 +21,9 @@ find "$tmp_root/tasks" -type f -print
 
 The production bridge and worker should use absolute paths and be supervised by `launchd` or `systemd`.
 
+The default polling interval is 1 second. Override it with `REMOTE_GPU_BRIDGE_INTERVAL` or
+`REMOTE_GPU_WORKER_INTERVAL` when needed.
+
 ## Reusable scripts
 
 The default paths match the shared environment:
@@ -39,9 +42,21 @@ bash automation/setup_remote_gpu_queue.sh
 Run these long-lived processes in their respective zones:
 
 ```bash
-bash automation/run_online_bridge.sh
-bash automation/run_offline_worker.sh
+bash automation/start_online_bridge.sh
+bash automation/start_offline_worker.sh
 ```
+
+The `start_*.sh` commands use `nohup`, so closing the page or terminal does not stop them. Logs are
+written to `QUEUE_ROOT/status/logs/`. Use the foreground `run_*.sh` commands only for debugging.
+
+View current status from either zone:
+
+```bash
+bash automation/show_status.sh
+```
+
+Status files are stored in `QUEUE_ROOT/status/`: each service has `latest.json` and one timestamped
+JSON file for every run. A stale heartbeat is reported as `NOT RUNNING`.
 
 Queue a task from the Mac after placing a `.sh` or `.py` task script in the repository:
 
