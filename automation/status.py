@@ -38,7 +38,7 @@ def write_status(root: Path, name: str, run_id: str, state: str, interval: int, 
 
 
 def show_status(root: Path) -> None:
-    for name in ("online_bridge", "offline_worker"):
+    for name in ("mac_sync", "online_bridge", "offline_worker"):
         path = root / "status" / name / "latest.json"
         if not path.exists():
             print(f"{name}: NOT RUNNING (no status file)")

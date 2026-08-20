@@ -81,6 +81,9 @@ and queue, start only the Worker there.
 Check status with `bash automation/show_status.sh`. Each service writes a timestamped run file and
 `latest.json` under the shared queue's `status/` directory. A stale heartbeat is reported as not running.
 
+On the Mac, run `bash automation/start_mac_sync.sh` to continuously pull results from Git. It skips
+pulling while the Mac working tree has local changes, so it does not overwrite active Codex edits.
+
 The worker claims tasks by atomic rename, runs them in an isolated task directory, records stdout/stderr and metadata, and moves the task to `done` or `failed`.
 
 ## Operational rules

@@ -6,6 +6,9 @@ The online zone is the only zone that accesses Git. The offline zone must not ru
 `git push`; it uses the same shared filesystem and runs the Worker against files delivered by the
 online bridge.
 
+The Mac can run a separate pull loop to retrieve results pushed by the online bridge. It only pulls
+when the Mac working tree is clean, so local Codex edits are never overwritten.
+
 ## Directory protocol
 
 ```text
@@ -64,6 +67,16 @@ bash automation/show_status.sh
 
 Status files are stored in `QUEUE_ROOT/status/`: each service has `latest.json` and one timestamped
 JSON file for every run. A stale heartbeat is reported as `NOT RUNNING`.
+
+On the Mac, start the background pull loop from the repository root:
+
+```bash
+bash automation/start_mac_sync.sh
+```
+
+It checks Git every second by default and writes `QUEUE_ROOT/status/logs/mac_sync.log`. Override the
+interval with `REMOTE_GPU_MAC_INTERVAL`. The status command includes `mac_sync` and reports it as
+`NOT RUNNING` when its heartbeat becomes stale.
 
 Queue a task from the Mac after placing a `.sh` or `.py` task script in the repository:
 
