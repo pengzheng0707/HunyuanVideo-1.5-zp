@@ -2,6 +2,10 @@
 
 This directory implements a small file-based queue for a Mac, an online Git bridge, and an offline GPU worker.
 
+The online zone is the only zone that accesses Git. The offline zone must not run `git pull` or
+`git push`; it uses the same shared filesystem and runs the Worker against files delivered by the
+online bridge.
+
 ## Directory protocol
 
 ```text
@@ -42,7 +46,10 @@ bash automation/setup_remote_gpu_queue.sh
 Run these long-lived processes in their respective zones:
 
 ```bash
+# Online zone: Git pull/push and task/result synchronization.
 bash automation/start_online_bridge.sh
+
+# Offline zone: GPU task execution only; do not run Git commands here.
 bash automation/start_offline_worker.sh
 ```
 

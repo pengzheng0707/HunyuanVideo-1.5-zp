@@ -14,6 +14,10 @@ Mac -> git push -> online bridge -> shared filesystem -> offline worker
 Mac <- git pull <- online bridge <- shared filesystem <- offline worker
 ```
 
+Only the online zone accesses Git. The offline GPU zone does not run `git pull` or `git push`; it
+reads the repository and queue through the shared filesystem. The online bridge pulls new code and
+tasks, then pushes returned results back to Git.
+
 Git carries source code, task definitions, and results. The shared filesystem carries task directories between the online bridge and offline worker. Large checkpoints and generated media should stay outside Git.
 
 ## Submit a task on the Mac
@@ -70,6 +74,9 @@ python automation/offline_worker.py \
 In the standard environment, initialize once with `bash automation/setup_remote_gpu_queue.sh` and run
 `bash automation/start_offline_worker.sh` in the GPU zone. Use `bash automation/start_online_bridge.sh`
 in the online zone. Both commands use `nohup`, so closing the terminal does not stop the process.
+
+Do not run `git pull` in the offline zone. After the online bridge has synchronized the repository
+and queue, start only the Worker there.
 
 Check status with `bash automation/show_status.sh`. Each service writes a timestamped run file and
 `latest.json` under the shared queue's `status/` directory. A stale heartbeat is reported as not running.
