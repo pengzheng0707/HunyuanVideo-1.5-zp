@@ -12,17 +12,21 @@ write_status() {
     --state "$1" --interval "$INTERVAL" --message "${2:-}"
 }
 
+log_time() {
+  date -u '+%Y-%m-%dT%H:%M:%SZ'
+}
+
 trap 'write_status stopped interrupted' EXIT
 write_status running
 
 cd "$REPO_ROOT"
 while true; do
   if [[ -n "$(git status --porcelain --untracked-files=all)" ]]; then
-    printf '%s mac-sync: local changes exist; skipping pull\n' "$(date -Is)"
+    printf '%s mac-sync: local changes exist; skipping pull\n' "$(log_time)"
   elif git pull --ff-only; then
-    printf '%s mac-sync: pull completed\n' "$(date -Is)"
+    printf '%s mac-sync: pull completed\n' "$(log_time)"
   else
-    printf '%s mac-sync: pull failed\n' "$(date -Is)"
+    printf '%s mac-sync: pull failed\n' "$(log_time)"
   fi
   write_status running
   sleep "$INTERVAL"
