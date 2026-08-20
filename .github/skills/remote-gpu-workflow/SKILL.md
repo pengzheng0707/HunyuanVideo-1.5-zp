@@ -32,6 +32,12 @@ git commit -m "chore: queue remote GPU task"
 git push
 ```
 
+For the standard shared environment, the complete reusable entry point is:
+
+```bash
+bash automation/queue_task.sh path/to/run.sh
+```
+
 The script must be self-contained or refer only to paths available in the offline checkout. Task execution is intentionally limited to `bash task.sh`, `python task.py`, or `python3 task.py`.
 
 ## Run the online bridge
@@ -45,6 +51,10 @@ python automation/online_bridge.py \
   --interval 15
 ```
 
+With the shared environment from this repository, run `bash automation/run_online_bridge.sh`. It uses:
+`/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp` as the repository and
+`/inspire/hdd/global_user/zhengpeng-240108120124/remote-gpu-queue` as the queue.
+
 The bridge uses fast-forward-only pulls, copies pending tasks atomically, imports completed or failed tasks, then commits and pushes results. Keep one bridge process per repository.
 
 ## Run the offline worker
@@ -56,6 +66,9 @@ python automation/offline_worker.py \
   --root /path/to/shared/offline-root \
   --interval 5
 ```
+
+In the standard environment, initialize once with `bash automation/setup_remote_gpu_queue.sh` and run
+`bash automation/run_offline_worker.sh` in the GPU zone.
 
 The worker claims tasks by atomic rename, runs them in an isolated task directory, records stdout/stderr and metadata, and moves the task to `done` or `failed`.
 
