@@ -99,8 +99,9 @@ Environment installation should normally be submitted as an `offline` task becau
 has internal conda and pip sources. Use the online download fallback only after the direct offline
 installation fails.
 
-The bridge maintains `automation/tasks/task_history.jsonl`, one JSON record per completed task with
-start time, finish time, execution platform, status, and source commit.
+The bridge maintains `automation/tasks/task_history.jsonl`, one JSON record per task. It includes
+pending and running tasks with a blank finish time, and refreshes the record when the status changes
+to done or failed.
 
 The worker claims tasks by atomic rename, runs them in an isolated task directory, records stdout/stderr and metadata, and moves the task to `done` or `failed`.
 

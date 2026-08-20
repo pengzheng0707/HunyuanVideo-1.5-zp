@@ -108,8 +108,9 @@ This command pushes the task, pulls Git every second, and exits with success or 
 Worker result is available. It pauses automatic pulls if you have local edits.
 
 The online bridge maintains `automation/tasks/task_history.jsonl`. Each line records the task ID,
-start time, finish time, execution platform (`online` or `offline`), status, and source commit.
-This file is available on the compute platform and is also returned to the Mac through Git.
+start time, finish time, execution platform (`online` or `offline`), current status, and source
+commit. Pending and running tasks have a blank finish time; the same line is refreshed when status
+changes. This file is available on the compute platform and is also returned to the Mac through Git.
 
 Override paths without editing scripts:
 

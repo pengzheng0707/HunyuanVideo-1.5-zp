@@ -48,25 +48,39 @@ def archive_online_task(task: Path, repo_tasks: Path, status: str) -> None:
     os.replace(task, destination)
 
 
-def update_task_history(repo_tasks: Path) -> None:
-    records = []
-    for queue in ("done", "failed"):
-        for task in (repo_tasks / queue).iterdir():
-            result_file = task / "result.json"
-            if not task.is_dir() or not result_file.is_file():
+def update_task_history(repo_tasks: Path, offline_tasks: Path) -> None:
+    records_by_id = {}
+    locations = {
+        "pending": (repo_tasks / "pending", offline_tasks / "pending"),
+        "running": (repo_tasks / "running", offline_tasks / "running"),
+        "done": (repo_tasks / "done", offline_tasks / "done"),
+        "failed": (repo_tasks / "failed", offline_tasks / "failed"),
+    }
+    for status, directories in locations.items():
+        for directory in directories:
+            if not directory.exists():
                 continue
-            try:
-                result = json.loads(result_file.read_text(encoding="utf-8"))
-            except json.JSONDecodeError:
-                continue
-            records.append({
-                "task_id": result.get("task_id", task.name),
-                "status": result.get("status", queue),
-                "platform": result.get("platform", result.get("zone", "offline")),
-                "started_at": result.get("started_at"),
-                "finished_at": result.get("finished_at"),
-                "commit": result.get("commit"),
-            })
+            for task in directory.iterdir():
+                if not task.is_dir() or task.name.startswith("."):
+                    continue
+                metadata = {}
+                result = {}
+                try:
+                    metadata = json.loads((task / "task.json").read_text(encoding="utf-8"))
+                    if (task / "result.json").is_file():
+                        result = json.loads((task / "result.json").read_text(encoding="utf-8"))
+                except (OSError, json.JSONDecodeError):
+                    continue
+                task_id = result.get("task_id", metadata.get("task_id", task.name))
+                records_by_id[task_id] = {
+                    "task_id": task_id,
+                    "status": result.get("status", status),
+                    "platform": result.get("platform", metadata.get("zone", "offline")),
+                    "started_at": result.get("started_at", metadata.get("created_at")),
+                    "finished_at": result.get("finished_at"),
+                    "commit": result.get("commit", metadata.get("commit")),
+                }
+    records = list(records_by_id.values())
     records.sort(key=lambda record: record.get("started_at") or "")
     history = repo_tasks / "task_history.jsonl"
     content = "".join(json.dumps(record, ensure_ascii=True) + "\n" for record in records)
@@ -121,7 +135,7 @@ def sync_once(repo: Path, offline_root: Path, online_timeout: int) -> None:
                 pending = repo_tasks / "pending" / task.name
                 if pending.exists():
                     shutil.rmtree(pending)
-    update_task_history(repo_tasks)
+    update_task_history(repo_tasks, offline_tasks)
     git(repo, "add", "automation/tasks")
     if git(repo, "diff", "--cached", "--quiet").returncode != 0:
         if git(repo, "commit", "-m", "chore: collect remote GPU task results").returncode != 0:
