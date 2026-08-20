@@ -1,0 +1,6 @@
+=== before ===
+2026-08-20T12:59:10+00:00
+target exists: /inspire/hdd/global_user/zhengpeng-240108120124/uno_zp/UNO/uno-1m/images
+Filesystem      Size  Used Avail Use% Mounted on
+gpfs_hdd        4.8T  4.7T  108G  98% /inspire/hdd/global_user/zhengpeng-240108120124
+deleting: /inspire/hdd/global_user/zhengpeng-240108120124/uno_zp/UNO/uno-1m/images
