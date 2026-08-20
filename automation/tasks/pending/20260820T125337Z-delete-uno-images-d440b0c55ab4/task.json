@@ -1,0 +1,9 @@
+{
+  "task_id": "20260820T125337Z-delete-uno-images-d440b0c55ab4",
+  "commit": "61b2ea573e5887523fb0da7cc8c6619287ee9daf",
+  "script": "task.sh",
+  "zone": "online",
+  "name": "delete-uno-images",
+  "description": "Delete confirmed UNO uno-1m images directory and report disk recovery",
+  "created_at": "2026-08-20T12:53:37.767178+00:00"
+}
