@@ -15,6 +15,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--script", required=True, type=Path)
     parser.add_argument("--commit", default="unknown")
+    parser.add_argument("--zone", choices=("online", "offline"), default="offline")
     parser.add_argument("--output-dir", type=Path, default=Path("automation/tasks/pending"))
     args = parser.parse_args()
 
@@ -40,6 +41,7 @@ def main() -> None:
             "task_id": task_id,
             "commit": args.commit,
             "script": destination_name,
+            "zone": args.zone,
             "created_at": datetime.now(timezone.utc).isoformat(),
         }
         (temporary_dir / "task.json").write_text(

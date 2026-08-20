@@ -36,11 +36,15 @@ git commit -m "chore: queue remote GPU task"
 git push
 ```
 
-For the standard shared environment, the complete reusable entry point is:
+For the standard shared environment, the complete reusable entry point is. The optional second
+argument selects the execution zone and defaults to `offline`:
 
 ```bash
-bash automation/queue_task.sh path/to/run.sh
+bash automation/queue_task.sh path/to/run.sh offline
+bash automation/queue_task.sh path/to/run.sh online
 ```
+
+`online` tasks run inside the online bridge. `offline` tasks run inside the GPU Worker.
 
 The script must be self-contained or refer only to paths available in the offline checkout. Task execution is intentionally limited to `bash task.sh`, `python task.py`, or `python3 task.py`.
 
@@ -86,6 +90,10 @@ pulling while the Mac working tree has local changes, so it does not overwrite a
 
 For a fully automatic one-shot workflow, run `bash automation/queue_task_wait.sh path/to/task.sh`.
 It submits the task, polls Git every second, and returns the remote result when execution finishes.
+
+For environment setup, first submit `automation/examples/download_environment_packages.sh online`,
+then submit `automation/examples/install_environment_offline.sh offline`. The first task downloads
+packages through the online zone into the shared wheelhouse; the second installs without network access.
 
 The worker claims tasks by atomic rename, runs them in an isolated task directory, records stdout/stderr and metadata, and moves the task to `done` or `failed`.
 

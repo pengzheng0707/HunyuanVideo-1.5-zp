@@ -2,6 +2,7 @@
 """Pull Git, deliver tasks, collect results, and push Git."""
 
 import argparse
+import json
 import os
 import shutil
 import subprocess
@@ -9,6 +10,8 @@ import tempfile
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+
+from task_executor import execute_task
 
 
 def git(repo: Path, *args: str) -> subprocess.CompletedProcess[str]:
@@ -37,7 +40,34 @@ def copy_atomically(source: Path, destination: Path) -> None:
         os.replace(temporary_path, destination)
 
 
-def sync_once(repo: Path, offline_root: Path) -> None:
+def archive_online_task(task: Path, repo_tasks: Path, status: str) -> None:
+    destination = repo_tasks / status / task.name
+    if destination.exists():
+        shutil.rmtree(task)
+        return
+    os.replace(task, destination)
+
+
+def execute_online_tasks(repo_tasks: Path, timeout: int) -> None:
+    for source in sorted((repo_tasks / "pending").iterdir()):
+        if not source.is_dir() or source.name.startswith("."):
+            continue
+        try:
+            metadata = json.loads((source / "task.json").read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if metadata.get("zone", "offline") != "online":
+            continue
+        running = repo_tasks / "running" / source.name
+        try:
+            os.replace(source, running)
+        except FileNotFoundError:
+            continue
+        result = execute_task(running, timeout)
+        archive_online_task(running, repo_tasks, result["status"])
+
+
+def sync_once(repo: Path, offline_root: Path, online_timeout: int) -> None:
     if has_external_changes(repo):
         return
     queue_has_changes = any(
@@ -51,8 +81,9 @@ def sync_once(repo: Path, offline_root: Path) -> None:
     for queue in ("pending", "running", "done", "failed"):
         (repo_tasks / queue).mkdir(parents=True, exist_ok=True)
         (offline_tasks / queue).mkdir(parents=True, exist_ok=True)
+    execute_online_tasks(repo_tasks, online_timeout)
     for task in (repo_tasks / "pending").iterdir():
-        if task.is_dir():
+        if task.is_dir() and json.loads((task / "task.json").read_text(encoding="utf-8")).get("zone", "offline") == "offline":
             copy_atomically(task, offline_tasks / "pending" / task.name)
     for queue in ("done", "failed"):
         for task in (offline_tasks / queue).iterdir():
@@ -81,6 +112,7 @@ def main() -> None:
     parser.add_argument("--repo", type=Path, required=True)
     parser.add_argument("--offline-root", type=Path, required=True)
     parser.add_argument("--interval", type=int, default=1)
+    parser.add_argument("--online-timeout", type=int, default=3600)
     parser.add_argument("--once", action="store_true")
     args = parser.parse_args()
     offline_root = args.offline_root.resolve()
@@ -88,7 +120,7 @@ def main() -> None:
     update_status(offline_root, run_id, "running", args.interval)
     try:
         while True:
-            sync_once(args.repo.resolve(), offline_root)
+            sync_once(args.repo.resolve(), offline_root, args.online_timeout)
             update_status(offline_root, run_id, "running", args.interval)
             if args.once:
                 break

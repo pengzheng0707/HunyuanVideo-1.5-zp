@@ -6,46 +6,13 @@ import json
 import os
 import re
 import shutil
-import subprocess
 import time
 from datetime import datetime, timezone
 from pathlib import Path
 
+from task_executor import execute_task
+
 TASK_ID = re.compile(r"^[A-Za-z0-9_.-]+$")
-
-
-def now() -> str:
-    return datetime.now(timezone.utc).isoformat()
-
-
-def execute(task_dir: Path, timeout: int) -> None:
-    metadata = {}
-    task_id = task_dir.name
-    result = {"task_id": task_id, "started_at": now()}
-    try:
-        metadata = json.loads((task_dir / "task.json").read_text(encoding="utf-8"))
-        task_id = metadata.get("task_id", task_dir.name)
-        if task_id != task_dir.name or not TASK_ID.fullmatch(task_id):
-            raise ValueError("invalid task id")
-        script = metadata.get("script")
-        commands = {"task.sh": ["bash", "task.sh"], "task.py": ["python3", "task.py"]}
-        if script not in commands:
-            raise ValueError("script is not approved")
-        if not (task_dir / script).is_file():
-            raise ValueError("task script is missing")
-        result.update({"task_id": task_id, "commit": metadata.get("commit")})
-        with (task_dir / "stdout.log").open("w", encoding="utf-8") as stdout, (task_dir / "stderr.log").open("w", encoding="utf-8") as stderr:
-            completed = subprocess.run(
-                commands[script], cwd=task_dir, stdout=stdout, stderr=stderr,
-                timeout=timeout, check=False,
-            )
-        result.update({"status": "done" if completed.returncode == 0 else "failed", "exit_code": completed.returncode})
-    except subprocess.TimeoutExpired:
-        result.update({"status": "failed", "exit_code": None, "error": f"timeout after {timeout}s"})
-    except Exception as error:
-        result.update({"status": "failed", "exit_code": None, "error": str(error)})
-    result["finished_at"] = now()
-    (task_dir / "result.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
 
 
 def update_status(root: Path, run_id: str, state: str, interval: int, message: str = "") -> None:
@@ -134,7 +101,11 @@ def main() -> None:
                     os.replace(source, running)
                 except FileNotFoundError:
                     continue
-                execute(running, args.timeout)
+                metadata = json.loads((running / "task.json").read_text(encoding="utf-8"))
+                if metadata.get("zone", "offline") != "offline":
+                    archive_task(running, args.root.resolve(), "failed")
+                    continue
+                execute_task(running, args.timeout)
                 result = json.loads((running / "result.json").read_text(encoding="utf-8"))
                 archive_task(running, args.root.resolve(), result["status"])
             update_status(args.root, run_id, "running", args.interval)

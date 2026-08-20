@@ -80,16 +80,28 @@ It checks Git every second by default and writes `QUEUE_ROOT/status/logs/mac_syn
 `REMOTE_GPU_MAC_INTERVAL`. The status command includes `mac_sync` and reports it as `NOT RUNNING`
 when its heartbeat becomes stale.
 
-Queue a task from the Mac after placing a `.sh` or `.py` task script in the repository:
+Queue a task from the Mac after placing a `.sh` or `.py` task script in the repository. The optional
+second argument selects the execution zone and defaults to `offline`:
 
 ```bash
-bash automation/queue_task.sh path/to/task.sh
+bash automation/queue_task.sh path/to/task.sh offline
+bash automation/queue_task.sh path/to/task.sh online
 ```
 
 To submit and wait automatically for the remote result, use:
 
 ```bash
 bash automation/queue_task_wait.sh path/to/task.sh
+```
+
+Use the same optional zone argument with `queue_task_wait.sh`. For environment setup across zones:
+
+```bash
+# Online zone: download packages into the shared wheelhouse.
+bash automation/queue_task_wait.sh automation/examples/download_environment_packages.sh online
+
+# Offline zone: install only from the shared wheelhouse.
+bash automation/queue_task_wait.sh automation/examples/install_environment_offline.sh offline
 ```
 
 This command pushes the task, pulls Git every second, and exits with success or failure when the
