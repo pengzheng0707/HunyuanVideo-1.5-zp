@@ -150,6 +150,7 @@ outputs/
 *.temp
 .DS_Store
 Thumbs.db
+.remote-gpu-runtime/
 
 # IDE files
 .vscode/

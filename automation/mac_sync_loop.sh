@@ -2,7 +2,7 @@
 set -euo pipefail
 
 REPO_ROOT="${REMOTE_GPU_REPO_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
-QUEUE_ROOT="${REMOTE_GPU_QUEUE_ROOT:-/inspire/hdd/global_user/zhengpeng-240108120124/remote-gpu-queue}"
+QUEUE_ROOT="${REMOTE_GPU_QUEUE_ROOT:-$REPO_ROOT/.remote-gpu-runtime}"
 INTERVAL="${REMOTE_GPU_MAC_INTERVAL:-1}"
 RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)"
 

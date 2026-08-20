@@ -74,9 +74,11 @@ On the Mac, start the background pull loop from the repository root:
 bash automation/start_mac_sync.sh
 ```
 
-It checks Git every second by default and writes `QUEUE_ROOT/status/logs/mac_sync.log`. Override the
-interval with `REMOTE_GPU_MAC_INTERVAL`. The status command includes `mac_sync` and reports it as
-`NOT RUNNING` when its heartbeat becomes stale.
+It checks Git every second by default and writes `QUEUE_ROOT/status/logs/mac_sync.log`. On the Mac,
+`QUEUE_ROOT` defaults to `.remote-gpu-runtime/` inside the repository; override it with
+`REMOTE_GPU_QUEUE_ROOT` if the shared queue is mounted locally. Override the interval with
+`REMOTE_GPU_MAC_INTERVAL`. The status command includes `mac_sync` and reports it as `NOT RUNNING`
+when its heartbeat becomes stale.
 
 Queue a task from the Mac after placing a `.sh` or `.py` task script in the repository:
 
