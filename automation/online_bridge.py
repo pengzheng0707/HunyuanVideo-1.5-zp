@@ -11,7 +11,19 @@ from pathlib import Path
 
 
 def git(repo: Path, *args: str) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(["git", *args], cwd=repo, text=True, check=False)
+    return subprocess.run(
+        ["git", *args], cwd=repo, text=True, capture_output=True, check=False
+    )
+
+
+def has_external_changes(repo: Path) -> bool:
+    status = git(repo, "status", "--porcelain", "--untracked-files=all").stdout
+    for line in status.splitlines():
+        path = line[3:].split(" -> ")[-1]
+        if not path.startswith("automation/tasks/"):
+            print(f"bridge: repository change outside automation/tasks: {line}")
+            return True
+    return False
 
 
 def copy_atomically(source: Path, destination: Path) -> None:
@@ -25,10 +37,13 @@ def copy_atomically(source: Path, destination: Path) -> None:
 
 
 def sync_once(repo: Path, offline_root: Path) -> None:
-    if git(repo, "diff", "--quiet").returncode != 0:
-        print("bridge: local changes exist; skipping pull/push")
+    if has_external_changes(repo):
         return
-    if git(repo, "pull", "--ff-only").returncode != 0:
+    queue_has_changes = any(
+        line[3:].split(" -> ")[-1].startswith("automation/tasks/")
+        for line in git(repo, "status", "--porcelain").stdout.splitlines()
+    )
+    if not queue_has_changes and git(repo, "pull", "--ff-only").returncode != 0:
         return
     repo_tasks = repo / "automation" / "tasks"
     offline_tasks = offline_root / "tasks"
@@ -47,11 +62,11 @@ def sync_once(repo: Path, offline_root: Path) -> None:
                 pending = repo_tasks / "pending" / task.name
                 if pending.exists():
                     shutil.rmtree(pending)
-    if git(repo, "status", "--short").stdout:
-        git(repo, "add", "automation/tasks")
-        if git(repo, "diff", "--cached", "--quiet").returncode != 0:
-            git(repo, "commit", "-m", "chore: collect remote GPU task results")
-            git(repo, "push")
+    git(repo, "add", "automation/tasks")
+    if git(repo, "diff", "--cached", "--quiet").returncode != 0:
+        if git(repo, "commit", "-m", "chore: collect remote GPU task results").returncode != 0:
+            return
+        git(repo, "push")
 
 
 def main() -> None:
