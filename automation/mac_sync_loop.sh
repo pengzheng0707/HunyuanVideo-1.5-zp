@@ -28,6 +28,8 @@ while true; do
   else
     printf '%s mac-sync: pull failed\n' "$(log_time)"
   fi
+  python "$REPO_ROOT/automation/notify_task_results.py" \
+    --repo "$REPO_ROOT" --state-dir "$QUEUE_ROOT"
   write_status running
   sleep "$INTERVAL"
 done

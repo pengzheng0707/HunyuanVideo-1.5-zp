@@ -84,6 +84,10 @@ It checks Git every second by default and writes `QUEUE_ROOT/status/logs/mac_syn
 `REMOTE_GPU_MAC_INTERVAL`. The status command includes `mac_sync` and reports it as `NOT RUNNING`
 when its heartbeat becomes stale.
 
+After each pull, Mac sync scans new `done` and `failed` results. It sends a macOS notification and
+terminal alert once per task, then records a marker under `QUEUE_ROOT/notified-tasks/`. Notification
+history is local runtime state and is not committed to Git.
+
 Queue a task from the Mac after placing a `.sh` or `.py` task script in the repository. The optional
 second argument selects the execution zone and defaults to `offline`:
 

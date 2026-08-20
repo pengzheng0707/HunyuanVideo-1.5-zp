@@ -90,6 +90,7 @@ Check status with `bash automation/show_status.sh`. Each service writes a timest
 
 On the Mac, run `bash automation/start_mac_sync.sh` to continuously pull results from Git. It skips
 pulling while the Mac working tree has local changes, so it does not overwrite active Codex edits.
+After each pull it notifies the user once when a task enters `done` or `failed`.
 
 For a fully automatic one-shot workflow, run `bash automation/queue_task_wait.sh path/to/task.sh`.
 It submits the task, polls Git every second, and returns the remote result when execution finishes.
