@@ -1,17 +1,17 @@
 === timestamp ===
-2026-08-20T11:53:48+00:00
+2026-08-20T19:56:10+08:00
 === filesystem ===
 Filesystem      Size  Used Avail Use% Mounted on
 gpfs_hdd        4.8T  4.7T  108G  98% /inspire/hdd/global_user/zhengpeng-240108120124
 === project top-level usage ===
 1.0K	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/.sii
-1.5K	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/.github
 129K	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/ComfyUI
+130K	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/.github
 134K	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/assets
-536K	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/automation
-924K	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/.git
+1.1M	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/.git
 2.8M	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/hyvideo
-5.3M	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp
+17M	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/automation
+22M	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp
 === largest files under project (top 50) ===
 0.00 GiB	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/.git/objects/pack/pack-61385fb18cd996b0f7d14c40acef0ff46d10d3de.pack
 0.00 GiB	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/hyvideo/pipelines/hunyuan_video_pipeline.py
@@ -31,17 +31,19 @@ gpfs_hdd        4.8T  4.7T  108G  98% /inspire/hdd/global_user/zhengpeng-2401081
 0.00 GiB	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/LICENSE
 0.00 GiB	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/hyvideo/models/transformers/modules/posemb_layers.py
 0.00 GiB	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/hyvideo/models/transformers/modules/attention.py
-0.00 GiB	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/hyvideo/schedulers/scheduling_flow_match_discrete.py
 0.00 GiB	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/.git/index
+0.00 GiB	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/hyvideo/schedulers/scheduling_flow_match_discrete.py
 0.00 GiB	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/hyvideo/utils/rewrite/i2v_prompt.py
 0.00 GiB	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/hyvideo/utils/communications.py
 0.00 GiB	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/hyvideo/models/transformers/modules/token_refiner.py
 0.00 GiB	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/hyvideo/utils/rewrite/clients.py
 0.00 GiB	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/hyvideo/models/vision_encoder/__init__.py
+0.00 GiB	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/automation/tasks/done/20260820T114202Z-7539ee46293d/stdout.log
 0.00 GiB	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/hyvideo/optim/muon.py
 0.00 GiB	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/hyvideo/models/text_encoders/byT5/__init__.py
 0.00 GiB	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/hyvideo/commons/__init__.py
 0.00 GiB	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/hyvideo/models/transformers/modules/embed_layers.py
+0.00 GiB	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/automation/tasks/running/20260820T115344Z-7539ee46293d/stdout.log
 0.00 GiB	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/automation/online_bridge.py
 0.00 GiB	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/hyvideo/models/transformers/modules/upsample.py
 0.00 GiB	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/hyvideo/models/transformers/modules/mlp_layers.py
@@ -61,37 +63,3 @@ gpfs_hdd        4.8T  4.7T  108G  98% /inspire/hdd/global_user/zhengpeng-2401081
 0.00 GiB	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/hyvideo/utils/rewrite/rewrite_utils.py
 0.00 GiB	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/automation/__pycache__/task_executor.cpython-312.pyc
 0.00 GiB	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/hyvideo/commons/parallel_states.py
-0.00 GiB	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/hyvideo/models/transformers/modules/norm_layers.py
-0.00 GiB	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp/checkpoints-download.md
-=== shared filesystem top-level usage ===
-512	/inspire/hdd/global_user/zhengpeng-240108120124/global_project
-1.0K	/inspire/hdd/global_user/zhengpeng-240108120124/.sii
-1.5K	/inspire/hdd/global_user/zhengpeng-240108120124/inspire_shared
-808K	/inspire/hdd/global_user/zhengpeng-240108120124/remote-gpu-queue
-2.6M	/inspire/hdd/global_user/zhengpeng-240108120124/guided-diffusion
-4.7M	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5
-13M	/inspire/hdd/global_user/zhengpeng-240108120124/PuLID
-22M	/inspire/hdd/global_user/zhengpeng-240108120124/HunyuanVideo-1.5-zp
-26M	/inspire/hdd/global_user/zhengpeng-240108120124/LatentSync
-34M	/inspire/hdd/global_user/zhengpeng-240108120124/hallo3
-97M	/inspire/hdd/global_user/zhengpeng-240108120124/custom-diffusion
-160M	/inspire/hdd/global_user/zhengpeng-240108120124/fractalgen-zp
-162M	/inspire/hdd/global_user/zhengpeng-240108120124/fractalgen
-518M	/inspire/hdd/global_user/zhengpeng-240108120124/.migration
-537M	/inspire/hdd/global_user/zhengpeng-240108120124/USO
-4.2G	/inspire/hdd/global_user/zhengpeng-240108120124/DreamO
-4.3G	/inspire/hdd/global_user/zhengpeng-240108120124/x-flux
-5.3G	/inspire/hdd/global_user/zhengpeng-240108120124/xAR
-6.2G	/inspire/hdd/global_user/zhengpeng-240108120124/WithAnyone
-12G	/inspire/hdd/global_user/zhengpeng-240108120124/1d-tokenizer
-37G	/inspire/hdd/global_user/zhengpeng-240108120124/xAR-zp
-69G	/inspire/hdd/global_user/zhengpeng-240108120124/cache
-122G	/inspire/hdd/global_user/zhengpeng-240108120124/mar-hb3
-162G	/inspire/hdd/global_user/zhengpeng-240108120124/UNO
-196G	/inspire/hdd/global_user/zhengpeng-240108120124/Infinity
-220G	/inspire/hdd/global_user/zhengpeng-240108120124/sd-scripts
-244G	/inspire/hdd/global_user/zhengpeng-240108120124/XVerse
-323G	/inspire/hdd/global_user/zhengpeng-240108120124/mar-vavae
-363G	/inspire/hdd/global_user/zhengpeng-240108120124/UMO
-3.0T	/inspire/hdd/global_user/zhengpeng-240108120124/uno_zp
-4.7T	/inspire/hdd/global_user/zhengpeng-240108120124
