@@ -48,6 +48,33 @@ def archive_online_task(task: Path, repo_tasks: Path, status: str) -> None:
     os.replace(task, destination)
 
 
+def update_task_history(repo_tasks: Path) -> None:
+    records = []
+    for queue in ("done", "failed"):
+        for task in (repo_tasks / queue).iterdir():
+            result_file = task / "result.json"
+            if not task.is_dir() or not result_file.is_file():
+                continue
+            try:
+                result = json.loads(result_file.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                continue
+            records.append({
+                "task_id": result.get("task_id", task.name),
+                "status": result.get("status", queue),
+                "platform": result.get("platform", result.get("zone", "offline")),
+                "started_at": result.get("started_at"),
+                "finished_at": result.get("finished_at"),
+                "commit": result.get("commit"),
+            })
+    records.sort(key=lambda record: record.get("started_at") or "")
+    history = repo_tasks / "task_history.jsonl"
+    content = "".join(json.dumps(record, ensure_ascii=True) + "\n" for record in records)
+    temporary = history.with_name(f".{history.name}.tmp")
+    temporary.write_text(content, encoding="utf-8")
+    os.replace(temporary, history)
+
+
 def execute_online_tasks(repo_tasks: Path, timeout: int) -> None:
     for source in sorted((repo_tasks / "pending").iterdir()):
         if not source.is_dir() or source.name.startswith("."):
@@ -94,6 +121,7 @@ def sync_once(repo: Path, offline_root: Path, online_timeout: int) -> None:
                 pending = repo_tasks / "pending" / task.name
                 if pending.exists():
                     shutil.rmtree(pending)
+    update_task_history(repo_tasks)
     git(repo, "add", "automation/tasks")
     if git(repo, "diff", "--cached", "--quiet").returncode != 0:
         if git(repo, "commit", "-m", "chore: collect remote GPU task results").returncode != 0:

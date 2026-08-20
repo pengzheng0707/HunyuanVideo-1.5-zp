@@ -29,7 +29,8 @@ def execute_task(task_dir: Path, timeout: int) -> dict:
             raise ValueError("script is not approved")
         if not (task_dir / script).is_file():
             raise ValueError("task script is missing")
-        result.update({"task_id": task_id, "commit": metadata.get("commit"), "zone": metadata.get("zone", "offline")})
+        zone = metadata.get("zone", "offline")
+        result.update({"task_id": task_id, "commit": metadata.get("commit"), "zone": zone, "platform": zone})
         with (task_dir / "stdout.log").open("w", encoding="utf-8") as stdout, (task_dir / "stderr.log").open("w", encoding="utf-8") as stderr:
             completed = subprocess.run(
                 COMMANDS[script], cwd=task_dir, stdout=stdout, stderr=stderr,

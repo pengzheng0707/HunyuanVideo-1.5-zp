@@ -95,6 +95,13 @@ For environment setup, first submit `automation/examples/download_environment_pa
 then submit `automation/examples/install_environment_offline.sh offline`. The first task downloads
 packages through the online zone into the shared wheelhouse; the second installs without network access.
 
+Environment installation should normally be submitted as an `offline` task because the offline zone
+has internal conda and pip sources. Use the online download fallback only after the direct offline
+installation fails.
+
+The bridge maintains `automation/tasks/task_history.jsonl`, one JSON record per completed task with
+start time, finish time, execution platform, status, and source commit.
+
 The worker claims tasks by atomic rename, runs them in an isolated task directory, records stdout/stderr and metadata, and moves the task to `done` or `failed`.
 
 ## Operational rules
