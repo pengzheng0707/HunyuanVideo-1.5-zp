@@ -15,7 +15,7 @@ fi
 
 printf '%s\n' '=== before ==='
 date -Is 2>/dev/null || date
-du -sh "$TARGET"
+printf 'target exists: %s\n' "$TARGET"
 df -h "$TARGET"
 
 printf 'deleting: %s\n' "$TARGET"
