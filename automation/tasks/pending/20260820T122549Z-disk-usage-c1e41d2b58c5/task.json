@@ -1,0 +1,9 @@
+{
+  "task_id": "20260820T122549Z-disk-usage-c1e41d2b58c5",
+  "commit": "b9a965c52693a05bd270cf3acb28f8109d120a83",
+  "script": "task.sh",
+  "zone": "online",
+  "name": "disk-usage",
+  "description": "Inspect project and shared filesystem disk usage",
+  "created_at": "2026-08-20T12:25:49.052438+00:00"
+}
