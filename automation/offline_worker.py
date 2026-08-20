@@ -72,6 +72,14 @@ def recover_running_tasks(root: Path) -> None:
         os.replace(task, destination)
 
 
+def archive_task(task: Path, root: Path, status: str) -> None:
+    destination = root / "tasks" / status / task.name
+    if destination.exists():
+        shutil.rmtree(task)
+        return
+    os.replace(task, destination)
+
+
 def acquire_lock(root: Path) -> Path:
     lock = root / "status" / "offline_worker.lock"
     lock.parent.mkdir(parents=True, exist_ok=True)
@@ -128,7 +136,7 @@ def main() -> None:
                     continue
                 execute(running, args.timeout)
                 result = json.loads((running / "result.json").read_text(encoding="utf-8"))
-                os.replace(running, args.root / "tasks" / result["status"] / running.name)
+                archive_task(running, args.root.resolve(), result["status"])
             update_status(args.root, run_id, "running", args.interval)
             if args.once:
                 break
