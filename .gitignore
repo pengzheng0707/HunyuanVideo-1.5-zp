@@ -163,6 +163,11 @@ Thumbs.db
 *.log
 logs/
 
+# Remote task execution logs are part of the task result protocol.
+!automation/tasks/
+!automation/tasks/**/
+!automation/tasks/**/*.log
+
 # Cache directories
 .cache/
 cache/
